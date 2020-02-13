@@ -1,5 +1,8 @@
-from Tkinter import *
 import Tkinter as tk
+import ttk
+from Tkinter import *
+
+
 
 import serial
 import RPi.GPIO as GPIO
@@ -24,6 +27,8 @@ class main:
 		self.root=root
 		self.root.title("AutoWeed64")
 		self.root.geometry('800x600-30+30')
+		
+		#Window variables
 		self.s = StringVar()
 		self.h = StringVar()
 		self.plantS = StringVar()
@@ -43,19 +48,50 @@ class main:
 		settingMenu.add_command(label="Open Settings", command=self.openSettings)
 
 		#Labels
-		self.LABEL1 = Label(self.root, text = 'Temperature: ', bg='white')
-		self.LABEL1.grid(column=0,row=1)
-		self.LABEL = Label(self.root, text = '', textvariable = self.s, bg='white')
-		self.LABEL.grid(column=1,row=1)
-		self.LABEL2 = Label(self.root, text = 'Humidity: ', bg='white')
-		self.LABEL2.grid(column=2,row=1)
-		self.LABEL3 = Label(self.root, text = '', textvariable = self.h, bg='white')
-		self.LABEL3.grid(column=3,row=1)
-		self.LABEL4 = Label(self.root, text='', textvariable = self.plantS, bg='white')
-		self.LABEL4.grid(column=0,row=0)
-		self.LABEL5 = Label(self.root, text='', textvariable = self.happy, bg='white')
-		self.LABEL5.grid(column=1,row=0)
+		root.grid_rowconfigure(1, weight=0)
+		root.grid_columnconfigure(0, weight=1)
+		top_frame = Frame(root, bg='white', width = 100, height=20, pady=12)
+		top_frame.grid(row=0, sticky="ew")
+		
+		self.LABEL1 = Label(top_frame, text = 'Temperature: ', bg='white')
+		self.LABEL1.grid(column=0,row=0)
+		self.LABEL = Label(top_frame, text = '', textvariable = self.s, bg='white')
+		self.LABEL.grid(column=1,row=0)
+		self.LABEL2 = Label(top_frame, text = 'Humidity: ', bg='white')
+		self.LABEL2.grid(column=2,row=0)
+		self.LABEL3 = Label(top_frame, text = '', textvariable = self.h, bg='white')
+		self.LABEL3.grid(column=3,row=0)
 		self.root.after(1000, self.arduino)
+		
+		self.LABEL.config(font=(50))
+		self.LABEL1.config(font=(50))
+		self.LABEL2.config(font=(50))
+		self.LABEL3.config(font=(50))
+		
+		
+		#Tree
+		center = Frame(root, bg='white', width=450, height=150)
+		center.grid(row=1, sticky="ew")
+		center.grid_rowconfigure(0, weight=1)
+		center.grid_columnconfigure(1, weight=1)
+		
+		cols = ('PlantID', 'Stage', 'Moisture', 'Health')
+		listBox = ttk.Treeview(center, columns=cols, show='headings')
+		for col in cols:
+			listBox.heading(col, text=col)    
+			listBox.grid(row=1, column=0, columnspan=2)
+		
+		#Add plant	
+		buttons = Frame(root, bg='white', width=450, height=50)
+		buttons.grid_rowconfigure(0, weight=1)
+		buttons.grid_columnconfigure(1, weight=1)
+		add = Button(top_frame, text ="Hello")
+		
+
+#****************************************************************************************************
+#****************************************************************************************************
+#****************************************************************************************************
+#****************************************************************************************************
 
 	#Checking temperature and humidity
 	def getHappy(self):
