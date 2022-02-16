@@ -86,25 +86,25 @@ void logic(){
   HTTPClient http;
 
   //Send climate information
-  http.begin(host);
+  http.begin(host, 8081);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   http.POST("/SetClimate.php?ID=1&temperature=" + String(temperature) + "&humidity=" + String(humidity));
   http.end();
 
   //Send Plant Information
-  http.begin(host);
+  http.begin(host, 8081);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   http.POST("/SetPlant.php?ID=1&Moisture=" + String(leftSoilMoisture));
   http.end();
 
   //Send Water Utility Information
-  http.begin(host);
+  http.begin(host, 8081);
   http.addHeader("Content-Type", "application/x-www-form-urlencoded");
   http.POST("/SetRelayStatus.php?ID=1&WaterStatus=" + String(waterStatus) + "&HumidifierStatus=" + String(humidStatus) + "&SMSensorStatus=" + String(SMSensorStatus) + "&LightStatus=-1");
   http.end();
 
   //Get Action Requests
-  client.connect(host, 80);
+  client.connect(host, 8081);
   String URL = "/GetActionRequest.json";
   client.print(String("GET ") + URL + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
   String httpResponse = client.readStringUntil('r');

@@ -24,7 +24,7 @@ mycursor.execute("SELECT * FROM Plants")
 plants = mycursor.fetchall()
 
 def runPHP():
-    os.system('sudo php -S 127.0.0.1:80 -t Query')
+    os.system('sudo php -S 127.0.0.1:8081 -t Query')
 
 #  __                               ___            _             _ _
 # / _\ ___ _ __  ___  ___  _ __    / __\___  _ __ | |_ _ __ ___ | | | ___ _ __
