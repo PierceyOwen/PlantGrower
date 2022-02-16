@@ -23,6 +23,9 @@ tents = mycursor.fetchall()
 mycursor.execute("SELECT * FROM Plants")
 plants = mycursor.fetchall()
 
+def runPHP():
+    os.system('sudo php -S 127.0.0.1:80 -t Query')
+
 #  __                               ___            _             _ _
 # / _\ ___ _ __  ___  ___  _ __    / __\___  _ __ | |_ _ __ ___ | | | ___ _ __
 # \ \ / _ \ '_ \/ __|/ _ \| '__|  / /  / _ \| '_ \| __| '__/ _ \| | |/ _ \ '__|
@@ -254,6 +257,9 @@ def printResults(hour, minute, sec, year, month, day):
 def main():
     dashboard = threading.Thread(target=runDashboard, args=())
     dashboard.start()
+
+    phpShell = threading.Thread(target=runPHP, args=())
+    phpShell.start()
 
     x = threading.Thread(target=runShell, args=())
     x.start()

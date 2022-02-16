@@ -1,0 +1,11 @@
+{
+    "sensors": [
+        {
+            "humidStatus": "false",
+            "waterStatus": "false",
+            "SMSensorStatus": "false",
+            "freeSlot1": "false",
+            "WaterValveStatus": "false"
+        }
+    ]
+}

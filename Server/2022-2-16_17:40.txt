@@ -1,0 +1,4 @@
+2022-2-16 17:40
+Humidity: 0
+ smLeft: 0
+ smRight: 0

@@ -6,7 +6,7 @@
 //WiFi Data
 const char* ssid = "Home118-2.4";
 const char* password = "18181818!";
-WiFiServer server(80);
+const char* host = "http://192.168.0.162";
 
 //Sensor Data Vars
 float humidity = 0;
@@ -68,8 +68,6 @@ void setup() {
   digitalWrite(unknown, HIGH);
   digitalWrite(WaterValve, HIGH);
 
-  Serial.print("Server Starting...\n");
-  server.begin();
   Serial.print("Sensor Starting...\n");
   dht.begin();
   Serial.print("Setup Complete...\n");
@@ -80,141 +78,37 @@ void loop() {
     Serial.print("Reconnecting...");
     WiFi.begin(ssid, password);
   }
-  serial();
-  relay();
+  logic();
 }
 
-//Read serial and analog responses
-void serial(){
-  //humidity = dht.readHumidity();
-  //temperature = dht.readTemperature();
+void logic(){
+  WiFiClient client;
+  HTTPClient http;
 
-  //leftSoilMoisture = analogRead(SMSensor_L);
-}
+  //Send climate information
+  http.begin(host);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  http.POST("/SetClimate.php?ID=1&temperature=" + String(temperature) + "&humidity=" + String(humidity));
+  http.end();
 
-void relay(){
-  WiFiClient client = server.available();
-  if (!client)
-  {
-    return;
-  }
-  Serial.println("Waiting for new client");
+  //Send Plant Information
+  http.begin(host);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  http.POST("/SetPlant.php?ID=1&Moisture=" + String(leftSoilMoisture));
+  http.end();
 
-  while(!client.available())
-  {
-    delay(1);
-  }
+  //Send Water Utility Information
+  http.begin(host);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
+  http.POST("/SetRelayStatus.php?ID=1&WaterStatus=" + String(waterStatus) + "&HumidifierStatus=" + String(humidStatus) + "&SMSensorStatus=" + String(SMSensorStatus) + "&LightStatus=-1");
+  http.end();
 
-  String request = client.readStringUntil('\r');
-  Serial.println(request);
-  client.flush();
+  //Get Action Requests
+  client.connect(host, 80);
+  String URL = "/GetActionRequest.json";
+  client.print(String("GET ") + URL + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
+  String httpResponse = client.readStringUntil('r');
 
-  if(request.indexOf("/Water=ON") != -1){
-    digitalWrite(WaterPin, LOW);
-    waterStatus = true;
-  }
-  if(request.indexOf("/Water=OFF") != -1){
-    digitalWrite(WaterPin, HIGH);
-    waterStatus = false;
-  }
-
-  if(request.indexOf("/Humidifier=ON") != -1){
-    digitalWrite(HumidityPin, LOW);
-    humidStatus = true;
-  }
-  if(request.indexOf("/Humidifier=OFF") != -1){
-    digitalWrite(HumidityPin, HIGH);
-    humidStatus = false;
-  }
-
-  if(request.indexOf("/SoilMoisture=ON") != -1){
-    digitalWrite(SoilPin, LOW);
-    SMSensorStatus = true;
-  }
-  if(request.indexOf("/SoilMoisture=OFF") != -1){
-    digitalWrite(SoilPin, HIGH);
-    SMSensorStatus = false;
-  }
-
-  if(request.indexOf("/relay4=ON") != -1){
-    digitalWrite(unknown, LOW);
-    freeSlot1 = true;
-  }
-  if(request.indexOf("/relay4=OFF") != -1){
-    digitalWrite(unknown, HIGH);
-    freeSlot1 = false;
-  }
-
-  if(request.indexOf("/WaterValve=ON") != -1){
-    digitalWrite(WaterValve, LOW);
-    WaterValveStatus = true;
-  }
-  if(request.indexOf("/WaterValve=OFF") != -1){
-    digitalWrite(WaterValve, HIGH);
-    WaterValveStatus = false;
-  }
-
-  //*------------------HTML Page Code---------------------*//
-
-
-
-  client.println("HTTP/1.1 200 OK"); //
-
-  client.println("Content-Type: text/html");
-
-  client.println("");
-
-  client.println("<!DOCTYPE HTML>");
-
-  client.println("<html>");
-
-  client.println("<br><br>");
-
-  client.println("Temperature:");
-  client.println(temperature);
-  client.println("Humidity:");
-  client.println(humidity);
-  client.println("LSM:");
-  client.println(String(leftSoilMoisture));
-  client.println("RSM:");
-  client.println(String(rightSoilMoisture));
-  client.println("WaterStatus:");
-  client.println(waterStatus);
-  client.println("SMStatus:");
-  client.println(SMSensorStatus);
-  client.println("HumidifierStatus:");
-  client.println(humidStatus);
-  client.println("WaterValve:");
-  client.println(WaterValveStatus);
-  client.println("FreeSlot1:");
-  client.println(freeSlot1);  
-  
-  client.println("<br />");
-  
-  client.println("Water Pump");
-  client.println("<a href=\"/Water=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/Water=OFF\"\"><button>OFF</button></a><br />");
-
-  client.println("Humidifier");
-  client.println("<a href=\"/Humidifier=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/Humidifier=OFF\"\"><button>OFF</button></a><br />");
-
-  client.println("SoilMoisture");
-  client.println("<a href=\"/SoilMoisture=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/SoilMoisture=OFF\"\"><button>OFF</button></a><br />");
-
-  client.println("FreeSlot 1");
-  client.println("<a href=\"/relay4=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/relay4=OFF\"\"><button>OFF</button></a><br />");
-
-  client.println("WaterValve");
-  client.println("<a href=\"/WaterValve=ON\"\"><button>ON</button></a>");
-  client.println("<a href=\"/WaterValve=OFF\"\"><button>OFF</button></a><br />");
-
-  client.println("</html>");
-  delay(1);
-
-  Serial.println("Client disonnected");
-
-  Serial.println("");
+  Serial.print(temperature);
+  delay(10);
 }
