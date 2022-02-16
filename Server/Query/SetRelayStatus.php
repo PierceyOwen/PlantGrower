@@ -19,7 +19,7 @@
     
     }
 
-    if($_GET['ID'] != '' and  $_GET['WaterStatus'] != '' and $_GET['HumidifierStatus'] != '' and $_GET['SMSensorStatus'] != '' and $_GET['LightStatus'] != ''){
-        $plant=new relay($_GET['ID'],$_GET['WaterStatus'],$_GET['HumidifierStatus'],$_GET['SMSensorStatus'],$_GET['LightStatus']);
-    }
+    #if($_GET['ID'] != '' and  $_GET['WaterStatus'] != '' and $_GET['HumidifierStatus'] != '' and $_GET['SMSensorStatus'] != '' and $_GET['LightStatus'] != ''){
+    $plant=new relay($_GET['ID'],$_GET['WaterStatus'],$_GET['HumidifierStatus'],$_GET['SMSensorStatus'],$_GET['LightStatus']);
+    #}
 ?>

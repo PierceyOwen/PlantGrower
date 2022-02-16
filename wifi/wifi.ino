@@ -6,7 +6,7 @@
 //WiFi Data
 const char* ssid = "Home118-2.4";
 const char* password = "18181818!";
-const char* host = "http://192.168.0.162";
+const char* host = "http://192.168.0.162:8081";
 
 //Sensor Data Vars
 float humidity = 0;
@@ -44,11 +44,6 @@ void setup() {
   Serial.begin(115200);
   // Connect to WiFi
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) 
-  {
-     delay(500);
-     Serial.print("*");
-  }
   
   Serial.println("");
   Serial.println("WiFi connection Successful");
@@ -75,7 +70,7 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED){
-    Serial.print("Reconnecting...");
+    Serial.print("Reconnecting...\n");
     WiFi.begin(ssid, password);
   }
   logic();
@@ -84,24 +79,34 @@ void loop() {
 void logic(){
   WiFiClient client;
   HTTPClient http;
+  String path;
 
   //Send climate information
-  http.begin(host, 8081);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  http.POST("/SetClimate.php?ID=1&temperature=" + String(temperature) + "&humidity=" + String(humidity));
+  Serial.print("Sending Climate\n");
+  path = "/SetClimate.php?ID=1&temperature=" + String(temperature) + "&humidity=" + String(humidity);
+  http.begin(host+path);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded"); 
+  http.POST("");
   http.end();
+  delay(5000);
 
   //Send Plant Information
-  http.begin(host, 8081);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  http.POST("/SetPlant.php?ID=1&Moisture=" + String(leftSoilMoisture));
+  Serial.print("Sending Plant Info\n");
+  path = "/SetPlant.php?ID=1&Moisture=" + String(leftSoilMoisture);
+  http.begin(host+path);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded"); 
+  http.POST("");
   http.end();
+  delay(5000);
 
   //Send Water Utility Information
-  http.begin(host, 8081);
-  http.addHeader("Content-Type", "application/x-www-form-urlencoded");
-  http.POST("/SetRelayStatus.php?ID=1&WaterStatus=" + String(waterStatus) + "&HumidifierStatus=" + String(humidStatus) + "&SMSensorStatus=" + String(SMSensorStatus) + "&LightStatus=-1");
+  Serial.print("Sending Utility Info\n");
+  path = "/SetRelayStatus.php?ID=1&WaterStatus=" + String(waterStatus) + "&HumidifierStatus=" + String(humidStatus) + "&SMSensorStatus=" + String(SMSensorStatus) + "&LightStatus=-1";
+  http.begin(host+path);
+  http.addHeader("Content-Type", "application/x-www-form-urlencoded"); 
+  http.POST("");
   http.end();
+  delay(5000);
 
   //Get Action Requests
   client.connect(host, 8081);
@@ -109,6 +114,6 @@ void logic(){
   client.print(String("GET ") + URL + " HTTP/1.1\r\n" + "Host: " + host + "\r\n" + "Connection: close\r\n\r\n");
   String httpResponse = client.readStringUntil('r');
 
-  Serial.print(temperature);
-  delay(10);
+  Serial.print(httpResponse);
+  delay(10000);
 }
